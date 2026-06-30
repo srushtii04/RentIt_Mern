@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {createItem} from "../services/itemService";
+import { generateDescription } from "../services/aiService";
 
 function CreateItem() {
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ function CreateItem() {
       contactNumber: "",
       image: null,
     });
+  
+  const [loadingAI, setLoadingAI] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -30,6 +33,36 @@ function CreateItem() {
       ...formData,
       image: e.target.files[0],
     });
+  };
+
+  const handleGenerateDescription = async () => {
+    if(!formData.title.trim()) {
+      alert("Please enter item title first.");
+      return;
+    }
+
+    try {
+      setLoadingAI(true);
+      const data = await generateDescription({
+        title: formData.title,
+        description: formData.description,
+        category: formData.category
+      });
+
+      setFormData({
+        ...formData,
+        description: data.description
+      });
+    }
+
+    catch (err) {
+      console.log(err);
+      alert("Failed to generate description.");
+    }
+
+    finally {
+      setLoadingAI(false);
+    }
   };
 
   const handleSubmit =
@@ -196,6 +229,21 @@ async (e) => {
               mt-2
               "
             />
+
+            <div className="flex justify-end mt-3">
+
+              <button
+              type="button"
+              onClick={handleGenerateDescription}
+              disabled={loadingAI}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2 rounded-xl hover:opacity-90 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+              >
+
+              {loadingAI ? "Generating..." : "✨ Generate Description"}
+
+              </button>
+
+            </div>
           </div>
 
           <div

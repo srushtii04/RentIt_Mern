@@ -24,6 +24,9 @@ const rentalRoutes=require("./routes/rentalRoutes");
 
 app.use("/api/rentals",rentalRoutes);
 
+const aiRoutes=require("./routes/aiRoutes");
+app.use("/api/ai", aiRoutes);
+
 const PORT =
 process.env.PORT || 5000;
 
